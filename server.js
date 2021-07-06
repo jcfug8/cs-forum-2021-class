@@ -49,11 +49,18 @@ server.get("/thread/:id", (req, res) => {
   console.log(`getting thread with id ${req.params.id}`);
   Thread.findById(req.params.id, (err, thread) => {
     if (err != null) {
-      // return error
+      res.status(500).json({
+        error: err,
+        message: "could not get thread",
+      });
     } else if (thread === null) {
-      // return 404
+      res.status(400).json({
+        error: err,
+        message: "could not find thread",
+      });
+      return;
     }
-    // success
+    res.status(200).json(thread);
   });
 });
 
@@ -63,13 +70,19 @@ server.post("/thread", (req, res) => {
   console.log(`creating thread with body`, req.body);
   Thread.create(
     {
-      // this is the thread we are creating
+      name: req.body.name || "",
+      description: req.body.description || "",
+      author: req.body.author || "",
+      category: req.body.category || "",
     },
     (err, thread) => {
       if (err != null) {
-        // return error
+        res.status(500).json({
+          message: `post request failed to create thread`,
+          error: err,
+        });
       }
-      // success
+      res.status(200).json(thread);
     }
   );
 });
@@ -80,11 +93,18 @@ server.delete("/thread/:id", (req, res) => {
   console.log(`deleting thread with id ${req.params.id}`);
   Thread.findByIdAndDelete(req.params.id, (err, thread) => {
     if (err != null) {
-      // return error
+      res.status(500).json({
+        error: err,
+        message: "could not delete thread",
+      });
     } else if (thread === null) {
-      // return 404
+      res.status(400).json({
+        error: err,
+        message: "could not delete thread",
+      });
+      return;
     }
-    // success
+    res.status(200).json(thread);
   });
 });
 
@@ -109,11 +129,18 @@ server.post("/post", (req, res) => {
     },
     (err, thread) => {
       if (err != null) {
-        // return error
+        res.status(500).json({
+          error: err,
+          message: "could not add post",
+        });
       } else if (thread === null) {
-        // return 404
+        res.status(400).json({
+          error: err,
+          message: "could not find thread",
+        });
+        return;
       }
-      // success
+      res.status(200).json(thread.posts[thread.posts.length - 1]);
     }
   );
 });
@@ -135,13 +162,34 @@ server.delete("/post/:thread_id/:post_id", (req, res) => {
     },
     (err, thread) => {
       if (err != null) {
-        // return error
+        res.status(500).json({
+          error: err,
+          message: "could not delete post",
+        });
       } else if (thread === null) {
-        // return 404
+        res.status(400).json({
+          error: err,
+          message: "could not find thread",
+        });
+        return;
       }
       // find the post that was deleted
+      let post;
+      thread.posts.forEach((e) => {
+        if (e._id == req.params.post_id) {
+          post = e;
+        }
+      });
       // if you can't find it return 404
+      if (post == undefined) {
+        res.status(404).json({
+          error: err,
+          message: "could not find post",
+        });
+        return;
+      }
       // success
+      res.status(200).json(post);
     }
   );
 });
