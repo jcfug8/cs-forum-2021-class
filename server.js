@@ -23,8 +23,6 @@ server.use((req, res, next) => {
   next();
 });
 
-module.exports = server;
-
 // GET /thread
 server.get("/thread", (req, res) => {
   res.setHeader("Content-Type", "application/json");
@@ -53,8 +51,9 @@ server.get("/thread/:id", (req, res) => {
         error: err,
         message: "could not get thread",
       });
+      return;
     } else if (thread === null) {
-      res.status(400).json({
+      res.status(404).json({
         error: err,
         message: "could not find thread",
       });
@@ -81,8 +80,9 @@ server.post("/thread", (req, res) => {
           message: `post request failed to create thread`,
           error: err,
         });
+        return;
       }
-      res.status(200).json(thread);
+      res.status(201).json(thread);
     }
   );
 });
@@ -97,6 +97,7 @@ server.delete("/thread/:id", (req, res) => {
         error: err,
         message: "could not delete thread",
       });
+      return;
     } else if (thread === null) {
       res.status(400).json({
         error: err,
@@ -133,8 +134,9 @@ server.post("/post", (req, res) => {
           error: err,
           message: "could not add post",
         });
+        return;
       } else if (thread === null) {
-        res.status(400).json({
+        res.status(404).json({
           error: err,
           message: "could not find thread",
         });
@@ -146,7 +148,7 @@ server.post("/post", (req, res) => {
 });
 
 // DELETE /post/:thread_id/:post_id
-server.delete("/post/:thread_id/:post_id", (req, res) => {
+server.delete("/post/:thread_id/:post_id", (req, res, next) => {
   res.setHeader("Content-Type", "application/json");
   console.log(
     `deleting post with id ${req.params.post_id} on thread with id ${req.params.thread_id}`
@@ -166,8 +168,9 @@ server.delete("/post/:thread_id/:post_id", (req, res) => {
           error: err,
           message: "could not delete post",
         });
+        return;
       } else if (thread === null) {
-        res.status(400).json({
+        res.status(404).json({
           error: err,
           message: "could not find thread",
         });
@@ -193,3 +196,9 @@ server.delete("/post/:thread_id/:post_id", (req, res) => {
     }
   );
 });
+
+server.use((req, res) => {
+  console.log("handle error");
+});
+
+module.exports = server;
