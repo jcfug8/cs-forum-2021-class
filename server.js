@@ -119,7 +119,7 @@ server.post("/post", (req, res) => {
 });
 
 // DELETE /post/:thread_id/:post_id
-server.delete(" ", (req, res) => {
+server.delete("/post/:thread_id/:post_id", (req, res) => {
   res.setHeader("Content-Type", "application/json");
   console.log(
     `deleting post with id ${req.params.post_id} on thread with id ${req.params.thread_id}`
@@ -133,15 +133,14 @@ server.delete(" ", (req, res) => {
         },
       },
     },
-    {
-      new: true,
-    },
     (err, thread) => {
       if (err != null) {
         // return error
       } else if (thread === null) {
         // return 404
       }
+      // find the post that was deleted
+      // if you can't find it return 404
       // success
     }
   );
