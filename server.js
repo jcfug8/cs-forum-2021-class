@@ -24,7 +24,7 @@ server.use((req, res, next) => {
 });
 
 // GET /thread
-server.get("/thread", (req, res) => {
+server.get("/thread", (req, res, next) => {
   res.setHeader("Content-Type", "application/json");
   console.log("getting all threads");
   Thread.find({}, (err, threads) => {
@@ -38,6 +38,11 @@ server.get("/thread", (req, res) => {
     }
     // success
     res.status(200).json(threads);
+    req.local = {
+      error: "this is my error message",
+      message: "message",
+    };
+    next();
   });
 });
 
@@ -198,7 +203,7 @@ server.delete("/post/:thread_id/:post_id", (req, res, next) => {
 });
 
 server.use((req, res) => {
-  console.log("handle error");
+  console.log(req.local);
 });
 
 module.exports = server;
